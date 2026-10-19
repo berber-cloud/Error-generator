@@ -4,232 +4,128 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>🦠 Конструктор экрана ошибки</title>
+<title>…</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Comic+Relief&family=Anton&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #0d1117;
-    color: #e6edf3;
-    min-height: 100vh;
-    padding: 32px 16px 80px;
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+  body.mono  { font-family: 'JetBrains Mono', monospace; }
+  body.comic { font-family: 'Comic Relief', 'Comic Sans MS', cursive; }
+  body.impact { font-family: 'Anton', 'Impact', sans-serif; letter-spacing: .03em; }
+
+  #bsod {
+    position: fixed; inset: 0; color: #fff; padding: 8vh 8vw;
+    display: flex; flex-direction: column; justify-content: flex-start;
+    white-space: pre-wrap; line-height: 1.5;
   }
-  .wrap { max-width: 720px; margin: 0 auto; }
-  h1 { font-family: 'JetBrains Mono', monospace; font-size: 26px; margin-bottom: 6px; }
-  .subtitle { color: #8b949e; font-size: 14px; margin-bottom: 28px; }
-  .card {
-    background: #161b22; border: 1px solid #30363d; border-radius: 12px;
-    padding: 20px; margin-bottom: 16px;
+  #face { font-size: 6em; font-weight: 300; margin-bottom: .15em; line-height: 1; }
+  #msg  { font-weight: 300; }
+  #code { margin-top: 1.2em; opacity: .85; font-size: .8em; }
+  #prog { margin-top: 1.5em; opacity: .9; }
+
+  @keyframes blink { 0%,100% { opacity: 1 } 50% { opacity: 0 } }
+  .blinking #face, .blinking #msg { animation: blink 1s step-start infinite; }
+
+  @keyframes shake {
+    0%,100% { transform: translate(0,0) } 20% { transform: translate(-6px,3px) }
+    40% { transform: translate(5px,-4px) } 60% { transform: translate(-4px,-2px) }
+    80% { transform: translate(4px,4px) }
   }
-  .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: #58a6ff; margin-bottom: 14px; }
-  label.row {
-    display: flex; align-items: center; gap: 10px; padding: 7px 0;
-    cursor: pointer; font-size: 15px; user-select: none;
-  }
-  label.row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #238636; cursor: pointer; }
-  select, input[type="text"], textarea {
-    width: 100%; padding: 10px 12px; background: #0d1117; color: #e6edf3;
-    border: 1px solid #30363d; border-radius: 8px; font-size: 14px; font-family: inherit;
-    margin-top: 4px;
-  }
-  textarea { resize: vertical; min-height: 60px; }
-  .slider-row { margin: 10px 0 4px; font-size: 14px; }
-  .slider-row .val { color: #58a6ff; font-family: 'JetBrains Mono', monospace; float: right; }
-  input[type="range"] { width: 100%; accent-color: #238636; margin-top: 6px; }
-  input[type="color"] { width: 56px; height: 36px; border: 1px solid #30363d; border-radius: 8px; background: none; cursor: pointer; }
-  .color-row { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
-  #generate {
-    width: 100%; padding: 16px; font-size: 17px; font-weight: 800; font-family: 'Inter', sans-serif;
-    background: #238636; color: #fff; border: none; border-radius: 12px; cursor: pointer;
-    transition: transform .1s, background .2s;
-  }
-  #generate:hover { background: #2ea043; transform: translateY(-1px); }
-  #generate:active { transform: scale(.98); }
-  #linkBox { display: none; margin-top: 20px; }
-  #linkOut {
-    width: 100%; padding: 12px; background: #0d1117; border: 1px solid #238636;
-    border-radius: 8px; color: #3fb950; font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; word-break: break-all;
-  }
-  .btn-row { display: flex; gap: 10px; margin-top: 10px; }
-  .btn-row button {
-    flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #30363d;
-    background: #21262d; color: #e6edf3; cursor: pointer; font-size: 14px;
-  }
-  .btn-row button:hover { background: #30363d; }
-  .hint { font-size: 12px; color: #8b949e; margin-top: 10px; line-height: 1.5; }
+  @keyframes flicker { 0%,100% { filter: brightness(1) } 50% { filter: brightness(1.25) } }
+  .creepy { animation: shake .35s infinite, flicker .8s infinite; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>🦠 Конструктор экрана ошибки</h1>
-  <div class="subtitle">Собери свой экран и получи зашифрованную ссылку</div>
-
-  <div class="card">
-    <h2>📺 Внешний вид</h2>
-    <label class="row">
-      <input type="checkbox" id="c_face" checked>
-      Показывать грустный смайлик :( вверху
-    </label>
-    <label class="row">
-      <input type="checkbox" id="c_progress" checked>
-      Показывать счётчик прогресса (0 → 100 %)
-    </label>
-    <label class="row">
-      <input type="checkbox" id="c_blink">
-      Моргать заголовком ошибки
-    </label>
-    <label class="row">
-      <input type="checkbox" id="c_creepy">
-      Режим «жуть»: тряска экрана + мерцание
-    </label>
-
-    <div class="slider-row">
-      Размер шрифта <span class="val" id="v_font">24</span> px
-      <input type="range" id="s_font" min="14" max="48" value="24">
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>🎨 Цвет экрана</h2>
-    <select id="sel_color">
-      <option value="#0078D7">💙 Классический синий (Windows 8)</option>
-      <option value="#008CFF">🔵 Ярко-синий (Windows 10)</option>
-      <option value="#004C99">🌊 Тёмно-синий (Windows 7)</option>
-      <option value="#107C10">🟢 Зелёный (Insider Preview)</option>
-      <option value="#000000">⚫ Чёрный</option>
-      <option value="#B00020">🔴 Красный</option>
-      <option value="custom">🎨 Свой цвет…</option>
-    </select>
-    <div class="color-row" id="customColorRow" style="display:none">
-      <input type="color" id="colorPicker" value="#7B2FBE">
-      <span>Выбери любой цвет!</span>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>🔤 Шрифт</h2>
-    <select id="sel_font">
-      <option value="system">Segoe UI / System (как настоящий Windows)</option>
-      <option value="mono">JetBrains Mono (хакерский)</option>
-      <option value="comic">Comic Relief / Comic Sans</option>
-      <option value="impact">Anton / Impact (агрессивный)</option>
-    </select>
-  </div>
-
-  <div class="card">
-    <h2>📝 Текст ошибки</h2>
-    <select id="sel_text">
-      <option value="t1">Классический: «Your PC ran into a problem…»</option>
-      <option value="t2">Русская классика: «На вашем ПК возникла проблема…»</option>
-      <option value="t3">Котики: CRITICAL_PROCESS_DIED_BECAUSE_OF_CATS</option>
-      <option value="t4">Программистский: 0xDEADBEEF и null в production</option>
-      <option value="custom">✍️ Свой текст…</option>
-    </select>
-    <textarea id="customText" placeholder="Ваш текст ошибки…" style="display:none"></textarea>
-    <input type="text" id="customCode" placeholder="Код ошибки (напр. CRITICAL_PROCESS_DIED) — не обязательно" style="margin-top:8px">
-  </div>
-
-  <div class="card">
-    <h2>⏱ Скорость прогресса</h2>
-    <select id="sel_speed">
-      <option value="slow">🐢 Медленный — долго висит на малых процентах (самый реалистичный)</option>
-      <option value="medium" selected>🚶 Средний — как обычный Windows</option>
-      <option value="fast">🏃 Быстрый — сдувает до 100% за полминуты</option>
-    </select>
-  </div>
-
-  <button id="generate">🔗 Сгенерировать ссылку</button>
-
-  <div class="card" id="linkBox">
-    <h2>✅ Готово! Ссылка зашифрована</h2>
-    <div id="linkOut"></div>
-    <div class="btn-row">
-      <button id="copyBtn">📋 Скопировать</button>
-      <button id="openBtn">👁 Открыть и проверить</button>
-    </div>
-    <div class="hint">
-      💡 Параметры зашифрованы Base64URL и спрятаны после символа <b>#</b> —
-      по ссылке нельзя понять, что там настроено.
-    </div>
-  </div>
+<div id="bsod">
+  <div id="face">:(</div>
+  <div id="msg"></div>
+  <div id="code"></div>
+  <div id="prog"></div>
 </div>
 
 <script>
-const bind = (s, v) => {
-  const sEl = document.getElementById(s), vEl = document.getElementById(v);
-  sEl.addEventListener('input', () => vEl.textContent = sEl.value);
-};
-bind('s_font','v_font');
-
-document.getElementById('sel_color').addEventListener('change', e => {
-  document.getElementById('customColorRow').style.display =
-    e.target.value === 'custom' ? 'flex' : 'none';
-});
-document.getElementById('sel_text').addEventListener('change', e => {
-  document.getElementById('customText').style.display =
-    e.target.value === 'custom' ? 'block' : 'none';
-});
-
-const TEXTS = {
-  t1: { h: ':(', body: 'Your PC ran into a problem that it couldn\'t handle, and now it needs to restart.\n\nYou can search for the error online: HAL_PRANK_NOT_FOUND' },
-  t2: { h: ':(', body: 'На вашем ПК возникла проблема, с которой он не смог справиться, и теперь его нужно перезагрузить.\n\nДополнительную информацию можно найти в интернете по коду ошибки: KERNEL_DATA_INPAGE_ERROR' },
-  t3: { h: '🐱', body: 'CRITICAL_PROCESS_DIED_BECAUSE_OF_CATS\n\nКот сел на клавиатуру и нажал Ctrl+Alt+Delete. Отменить нельзя.' },
-  t4: { h: '💀', body: 'KERNEL_PANIC_AT_PRODUCTION\n\nОшибка 0xDEADBEEF: null попытался вызвать метод у undefined в продакшене в пятницу вечером.' }
-};
-
-function encodeParams(obj) {
-  const json = JSON.stringify(obj);
-  const b64 = btoa(unescape(encodeURIComponent(json)))
-    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  return b64.split('').reverse().join('');
+// ---------- 1. Расшифровка параметров ----------
+function decodeParams(hash) {
+  try {
+    const reversed = hash.split('').reverse().join('');
+    const b64 = reversed.replace(/-/g,'+').replace(/_/g,'/');
+    const json = decodeURIComponent(escape(atob(b64)));
+    return JSON.parse(json);
+  } catch (e) { return null; }
 }
 
-document.getElementById('generate').addEventListener('click', () => {
-  const g = id => document.getElementById(id);
-  const selColor = g('sel_color').value;
-  const color = selColor === 'custom' ? g('colorPicker').value : selColor;
+const P = decodeParams(location.hash.slice(1));
+const bsod = document.getElementById('bsod');
 
-  const selText = g('sel_text').value;
-  let text;
-  if (selText === 'custom') {
-    const t = g('customText').value.trim();
-    if (!t) { alert('Введи свой текст ошибки!'); return; }
-    text = { h: ':(', body: t };
-  } else {
-    text = TEXTS[selText];
-  }
+if (!P) {
+  document.getElementById('msg').textContent =
+    'Your PC ran into a problem that it couldn\'t handle, and now it needs to restart.';
+} else {
+  // ---------- 2. Применение параметров ----------
+  bsod.style.background = P.c || '#0078D7';
 
-  const params = {
-    c: color,
-    f: g('sel_font').value,
-    t: text,
-    code: g('customCode').value.trim(),
-    spd: g('sel_speed').value,
-    fs: +g('s_font').value,
-    face: g('c_face').checked,
-    prog: g('c_progress').checked,
-    blk: g('c_blink').checked,
-    creepy: g('c_creepy').checked
+  // FIX: пустой класс больше не добавляем — это ломало весь скрипт
+  const fontClass = P.f === 'mono' ? 'mono' : P.f === 'comic' ? 'comic' : P.f === 'impact' ? 'impact' : null;
+  if (fontClass) document.body.classList.add(fontClass);
+
+  bsod.style.fontSize = (P.fs || 24) + 'px';
+  if (P.blk) bsod.classList.add('blinking');
+  if (P.creepy) bsod.classList.add('creepy');
+
+  if (P.face === false) document.getElementById('face').style.display = 'none';
+  else if (P.t && P.t.h) document.getElementById('face').textContent = P.t.h;
+
+  document.getElementById('msg').textContent = (P.t && P.t.body) || 'Неизвестная ошибка.';
+
+  const codeEl = document.getElementById('code');
+  if (P.code) codeEl.textContent = 'Код ошибки: ' + P.code;
+  else codeEl.style.display = 'none';
+
+  // ---------- 3. Реалистичный счётчик прогресса ----------
+  // Пресеты скорости: [задержка между шагами, макс. прирост за шаг]
+  const SPEED = {
+    slow:   { minDelay: 8000, maxDelay: 20000, maxInc: 3  }, // висит долго
+    medium: { minDelay: 3000, maxDelay: 8000,  maxInc: 5  },
+    fast:   { minDelay: 700,  maxDelay: 2000,  maxInc: 9  }
   };
 
-  const encoded = encodeParams(params);
-  const url = location.href.replace(/index\.html.*$/, '') + 'screen.html#' + encoded;
+  if (P.prog !== false) {
+    const cfg = SPEED[P.spd] || SPEED.medium;
+    const progEl = document.getElementById('prog');
+    let pct = 0;
 
-  document.getElementById('linkBox').style.display = 'block';
-  document.getElementById('linkOut').textContent = url;
-  document.getElementById('linkBox').scrollIntoView({ behavior: 'smooth' });
-});
+    const rand = (a, b) => a + Math.random() * (b - a);
 
-document.getElementById('copyBtn').addEventListener('click', function() {
-  navigator.clipboard.writeText(document.getElementById('linkOut').textContent)
-    .then(() => { this.textContent = '✅ Скопировано!'; setTimeout(() => this.textContent = '📋 Скопировать', 1500); });
-});
-document.getElementById('openBtn').addEventListener('click', () => {
-  window.open(document.getElementById('linkOut').textContent, '_blank');
-});
+    function tick() {
+      if (pct < 100) {
+        // Прирост: чаще маленький (1-2), редко — рывок до maxInc
+        const inc = Math.random() < 0.7 ? rand(1, 2) : rand(2, cfg.maxInc);
+        pct = Math.min(100, pct + inc);
+        progEl.textContent = Math.floor(pct) + '% завершено';
+
+        if (pct < 100) {
+          // Случайная задержка + иногда «застревание» на долгие секунды
+          let delay = rand(cfg.minDelay, cfg.maxDelay);
+          if (Math.random() < 0.2) delay *= 2.5;
+          setTimeout(tick, delay);
+        }
+      }
+    }
+    progEl.textContent = '0% завершено';
+    setTimeout(tick, rand(1000, 2500));
+  }
+
+  // ---------- 4. Полноэкранный режим (после первого действия пользователя) ----------
+  function goFullscreen() {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    window.scrollTo(0, 1);
+  }
+  ['click','keydown','touchstart'].forEach(ev =>
+    window.addEventListener(ev, goFullscreen, { passive: true }));
+}
 </script>
 </body>
 </html>
