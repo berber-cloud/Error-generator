@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Comic+Relief&family=Anton&display=swap" rel="stylesheet">
 <style>
   html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
   body.mono  { font-family: 'JetBrains Mono', monospace; }
   body.comic { font-family: 'Comic Relief', 'Comic Sans MS', cursive; }
   body.impact { font-family: 'Anton', 'Impact', sans-serif; letter-spacing: .03em; }
@@ -34,20 +34,6 @@
   }
   @keyframes flicker { 0%,100% { filter: brightness(1) } 50% { filter: brightness(1.25) } }
   .creepy { animation: shake .35s infinite, flicker .8s infinite; }
-
-  #reveal {
-    position: fixed; left: 50%; top: 50%; transform: translate(-50%,-50%) scale(0);
-    background: #fff; color: #111; padding: 30px 50px; border-radius: 20px;
-    font-size: 32px; font-weight: 800; text-align: center; z-index: 10;
-    transition: transform .5s cubic-bezier(.2,1.6,.4,1); box-shadow: 0 20px 60px rgba(0,0,0,.4);
-  }
-  #reveal.show { transform: translate(-50%,-50%) scale(1); }
-  #reveal small { display: block; font-size: 14px; font-weight: 400; margin-top: 8px; color: #555; }
-
-  #hint {
-    position: fixed; bottom: 12px; right: 16px; font-size: 11px; opacity: .35;
-    color: #fff; z-index: 5; user-select: none;
-  }
 </style>
 </head>
 <body>
@@ -57,8 +43,6 @@
   <div id="code"></div>
   <div id="prog"></div>
 </div>
-<div id="reveal">😂 РОЗЫГРЫШ!<small>Это шуточный экран. Ничего не сломалось 🙂<br>Нажми Esc, чтобы выйти</small></div>
-<div id="hint">шуточный экран · это не настоящая ошибка</div>
 
 <script>
 // ---------- 1. Расшифровка параметров ----------
@@ -76,13 +60,16 @@ const bsod = document.getElementById('bsod');
 
 if (!P) {
   document.getElementById('msg').textContent =
-    'Проблема: ссылка повреждена или параметры утеряны.\n\nЗайди в конструктор и сгенерируй ссылку заново.';
+    'Your PC ran into a problem that it couldn\'t handle, and now it needs to restart.';
 } else {
   // ---------- 2. Применение параметров ----------
   bsod.style.background = P.c || '#0078D7';
-  document.body.classList.add(P.f === 'mono' ? 'mono' : P.f === 'comic' ? 'comic' : P.f === 'impact' ? 'impact' : '');
-  const fs = P.fs || 24;
-  bsod.style.fontSize = fs + 'px';
+
+  // FIX: пустой класс больше не добавляем — это ломало весь скрипт
+  const fontClass = P.f === 'mono' ? 'mono' : P.f === 'comic' ? 'comic' : P.f === 'impact' ? 'impact' : null;
+  if (fontClass) document.body.classList.add(fontClass);
+
+  bsod.style.fontSize = (P.fs || 24) + 'px';
   if (P.blk) bsod.classList.add('blinking');
   if (P.creepy) bsod.classList.add('creepy');
 
@@ -95,95 +82,49 @@ if (!P) {
   if (P.code) codeEl.textContent = 'Код ошибки: ' + P.code;
   else codeEl.style.display = 'none';
 
-  // ---------- 3. Счётчик прогресса ----------
+  // ---------- 3. Реалистичный счётчик прогресса ----------
+  // Пресеты скорости: [задержка между шагами, макс. прирост за шаг]
+  const SPEED = {
+    slow:   { minDelay: 8000, maxDelay: 20000, maxInc: 3  }, // висит долго
+    medium: { minDelay: 3000, maxDelay: 8000,  maxInc: 5  },
+    fast:   { minDelay: 700,  maxDelay: 2000,  maxInc: 9  }
+  };
+
   if (P.prog !== false) {
+    const cfg = SPEED[P.spd] || SPEED.medium;
     const progEl = document.getElementById('prog');
     let pct = 0;
-    const tick = () => {
-      pct += (P.spd || 3);
-      if (pct >= 100) { pct = 100; }
-      progEl.textContent = pct + '% завершено';
-      if (pct < 100) setTimeout(tick, 400);
-    };
-    tick();
+
+    const rand = (a, b) => a + Math.random() * (b - a);
+
+    function tick() {
+      if (pct < 100) {
+        // Прирост: чаще маленький (1-2), редко — рывок до maxInc
+        const inc = Math.random() < 0.7 ? rand(1, 2) : rand(2, cfg.maxInc);
+        pct = Math.min(100, pct + inc);
+        progEl.textContent = Math.floor(pct) + '% завершено';
+
+        if (pct < 100) {
+          // Случайная задержка + иногда «застревание» на долгие секунды
+          let delay = rand(cfg.minDelay, cfg.maxDelay);
+          if (Math.random() < 0.2) delay *= 2.5;
+          setTimeout(tick, delay);
+        }
+      }
+    }
+    progEl.textContent = '0% завершено';
+    setTimeout(tick, rand(1000, 2500));
   }
 
-  // ---------- 4. Полноэкранный режим ----------
-  // ВАЖНО: браузеры требуют действия пользователя для Fullscreen API.
-  // Поэтому ловим ПЕРВЫЙ клик/клавишу — и тогда уходим в полный экран.
-  let fsTried = false;
+  // ---------- 4. Полноэкранный режим (после первого действия пользователя) ----------
   function goFullscreen() {
-    if (fsTried) return;
-    fsTried = true;
     const el = document.documentElement;
-    if (el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    // На iPhone Safari полноэкранного API для веб-страниц нет —
-    // вместо этого прячем панели браузера максимально:
     window.scrollTo(0, 1);
   }
   ['click','keydown','touchstart'].forEach(ev =>
-    window.addEventListener(ev, goFullscreen, { once: false, passive: true }));
-
-  // ---------- 5. Звук (WebAudio, без внешних файлов) ----------
-  function playSound(type) {
-    if (type === 'none') return;
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = ctx.currentTime;
-
-    const beep = (t0, freq, dur, vol = 0.3, typeW = 'square') => {
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.type = typeW; o.frequency.value = freq;
-      g.gain.setValueAtTime(vol, t0);
-      g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
-      o.connect(g); g.connect(ctx.destination);
-      o.start(t0); o.stop(t0 + dur);
-    };
-    const noise = (t0, dur, vol = 0.25) => {
-      const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
-      const s = ctx.createBufferSource(); s.buffer = buf;
-      const g = ctx.createGain(); g.gain.value = vol;
-      s.connect(g); g.connect(ctx.destination); s.start(t0);
-    };
-
-    switch (type) {
-      case 'beep':   beep(now, 880, 0.35); break;
-      case 'double': beep(now, 880, 0.25); beep(now + 0.35, 880, 0.25); break;
-      case 'alarm':
-        for (let i = 0; i < 6; i++) { beep(now + i * 0.5, 600, 0.22); beep(now + i * 0.5 + 0.22, 900, 0.22); }
-        break;
-      case 'scream':
-        // синтезированный «крик»: быстрая модуляция высоты + шум
-        beep(now, 1200, 1.2, 0.35, 'sawtooth');
-        beep(now + 0.1, 900, 1.0, 0.3, 'sawtooth');
-        noise(now, 1.2, 0.15);
-        break;
-      case 'glitch':
-        for (let i = 0; i < 12; i++) noise(now + i * 0.12, 0.1, 0.2);
-        break;
-    }
-  }
-
-  let soundPlayed = false;
-  function onGesture() {
-    goFullscreen();
-    if (!soundPlayed) {
-      soundPlayed = true;
-      playSound(P.snd || 'none');
-    }
-  }
-  ['click','keydown','touchstart'].forEach(ev =>
-    window.addEventListener(ev, onGesture, { passive: true }));
-
-  // ---------- 6. Разоблачение ----------
-  setTimeout(() => {
-    document.getElementById('reveal').classList.add('show');
-    if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-  }, (P.rev || 15) * 1000);
-
-  // Esc выходит из полного экрана автоматически (встроено в браузер)
+    window.addEventListener(ev, goFullscreen, { passive: true }));
 }
 </script>
 </body>

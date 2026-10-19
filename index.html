@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>🦠 Конструктор вирусов — v0.1 (шутка)</title>
+<title>🦠 Конструктор экрана ошибки</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -19,7 +19,6 @@
   .wrap { max-width: 720px; margin: 0 auto; }
   h1 { font-family: 'JetBrains Mono', monospace; font-size: 26px; margin-bottom: 6px; }
   .subtitle { color: #8b949e; font-size: 14px; margin-bottom: 28px; }
-  .subtitle b { color: #f0883e; }
   .card {
     background: #161b22; border: 1px solid #30363d; border-radius: 12px;
     padding: 20px; margin-bottom: 16px;
@@ -30,7 +29,7 @@
     cursor: pointer; font-size: 15px; user-select: none;
   }
   label.row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #238636; cursor: pointer; }
-  select, input[type="text"], input[type="number"], textarea {
+  select, input[type="text"], textarea {
     width: 100%; padding: 10px 12px; background: #0d1117; color: #e6edf3;
     border: 1px solid #30363d; border-radius: 8px; font-size: 14px; font-family: inherit;
     margin-top: 4px;
@@ -65,11 +64,11 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>🦠 Конструктор вирусов</h1>
-  <div class="subtitle">100% безобидный пранк-генератор. <b>Ни один компьютер не пострадал.</b></div>
+  <h1>🦠 Конструктор экрана ошибки</h1>
+  <div class="subtitle">Собери свой экран и получи зашифрованную ссылку</div>
 
   <div class="card">
-    <h2>📺 Внешний вид BSOD</h2>
+    <h2>📺 Внешний вид</h2>
     <label class="row">
       <input type="checkbox" id="c_face" checked>
       Показывать грустный смайлик :( вверху
@@ -91,15 +90,6 @@
       Размер шрифта <span class="val" id="v_font">24</span> px
       <input type="range" id="s_font" min="14" max="48" value="24">
     </div>
-    <div class="slider-row">
-      Скорость счётчика <span class="val" id="v_speed">3</span> %
-      <input type="range" id="s_speed" min="1" max="20" value="3">
-    </div>
-    <div class="slider-row">
-      Через сколько секунд показать «😂 Розыгрыш!»
-      <span class="val" id="v_reveal">15</span> с
-      <input type="range" id="s_reveal" min="3" max="60" value="15">
-    </label>
   </div>
 
   <div class="card">
@@ -109,8 +99,8 @@
       <option value="#008CFF">🔵 Ярко-синий (Windows 10)</option>
       <option value="#004C99">🌊 Тёмно-синий (Windows 7)</option>
       <option value="#107C10">🟢 Зелёный (Insider Preview)</option>
-      <option value="#000000">⚫ Чёрный (экран смерти №2)</option>
-      <option value="#B00020">🔴 Красный (Soviet Edition)</option>
+      <option value="#000000">⚫ Чёрный</option>
+      <option value="#B00020">🔴 Красный</option>
       <option value="custom">🎨 Свой цвет…</option>
     </select>
     <div class="color-row" id="customColorRow" style="display:none">
@@ -124,7 +114,7 @@
     <select id="sel_font">
       <option value="system">Segoe UI / System (как настоящий Windows)</option>
       <option value="mono">JetBrains Mono (хакерский)</option>
-      <option value="comic">Comic Relief / Comic Sans (комичный)</option>
+      <option value="comic">Comic Relief / Comic Sans</option>
       <option value="impact">Anton / Impact (агрессивный)</option>
     </select>
   </div>
@@ -133,10 +123,9 @@
     <h2>📝 Текст ошибки</h2>
     <select id="sel_text">
       <option value="t1">Классический: «Your PC ran into a problem…»</option>
-      <option value="t2">Русский классика: «На вашем ПК возникла проблема…»</option>
-      <option value="t3">Душевный: «ВАЖНО: пятница, 13-е — проверьте кошелёк»</option>
-      <option value="t4">Котики: CRITICAL_PROCESS_DIED_BECAUSE_OF_CATS</option>
-      <option value="t5">Программистский: 0xDEADBEEF и null в production</option>
+      <option value="t2">Русская классика: «На вашем ПК возникла проблема…»</option>
+      <option value="t3">Котики: CRITICAL_PROCESS_DIED_BECAUSE_OF_CATS</option>
+      <option value="t4">Программистский: 0xDEADBEEF и null в production</option>
       <option value="custom">✍️ Свой текст…</option>
     </select>
     <textarea id="customText" placeholder="Ваш текст ошибки…" style="display:none"></textarea>
@@ -144,23 +133,15 @@
   </div>
 
   <div class="card">
-    <h2>🔊 Звук</h2>
-    <select id="sel_sound">
-      <option value="none">🔇 Без звука</option>
-      <option value="beep">📢 Короткий «бип»</option>
-      <option value="double">📢📢 Двойной «бип-бип»</option>
-      <option value="alarm">🚨 Сирена (завывание)</option>
-      <option value="scream">😱 «Крик» (синтезированный)</option>
-      <option value="glitch">⚡ Глитч-шум</option>
+    <h2>⏱ Скорость прогресса</h2>
+    <select id="sel_speed">
+      <option value="slow">🐢 Медленный — долго висит на малых процентах (самый реалистичный)</option>
+      <option value="medium" selected>🚶 Средний — как обычный Windows</option>
+      <option value="fast">🏃 Быстрый — сдувает до 100% за полминуты</option>
     </select>
-    <div class="hint">
-      Все звуки синтезируются через WebAudio — внешних файлов не нужно.
-      Браузеры блокируют автовоспроизведение, поэтому звук стартует после
-      первого клика/нажатия клавиши на странице экрана смерти (это норма для всех сайтов).
-    </div>
   </div>
 
-  <button id="generate">🔗 Сгенерировать ссылку на пранк</button>
+  <button id="generate">🔗 Сгенерировать ссылку</button>
 
   <div class="card" id="linkBox">
     <h2>✅ Готово! Ссылка зашифрована</h2>
@@ -168,25 +149,21 @@
     <div class="btn-row">
       <button id="copyBtn">📋 Скопировать</button>
       <button id="openBtn">👁 Открыть и проверить</button>
-      <button id="qrBtn" title="Показать ссылку как текст для QR-генератора">📱 Текст для QR</button>
     </div>
     <div class="hint">
       💡 Параметры зашифрованы Base64URL и спрятаны после символа <b>#</b> —
-      по ссылке нельзя понять, что там за звук и цвет. Отправь её другу
-      с фразой «посмотри, что у меня с компьютером».
+      по ссылке нельзя понять, что там настроено.
     </div>
   </div>
 </div>
 
 <script>
-// --- слайдеры: живые значения ---
 const bind = (s, v) => {
   const sEl = document.getElementById(s), vEl = document.getElementById(v);
   sEl.addEventListener('input', () => vEl.textContent = sEl.value);
 };
-bind('s_font','v_font'); bind('s_speed','v_speed'); bind('s_reveal','v_reveal');
+bind('s_font','v_font');
 
-// --- показ/скрытие кастомных полей ---
 document.getElementById('sel_color').addEventListener('change', e => {
   document.getElementById('customColorRow').style.display =
     e.target.value === 'custom' ? 'flex' : 'none';
@@ -196,21 +173,18 @@ document.getElementById('sel_text').addEventListener('change', e => {
     e.target.value === 'custom' ? 'block' : 'none';
 });
 
-// --- готовые тексты ---
 const TEXTS = {
   t1: { h: ':(', body: 'Your PC ran into a problem that it couldn\'t handle, and now it needs to restart.\n\nYou can search for the error online: HAL_PRANK_NOT_FOUND' },
-  t2: { h: ':(', body: 'На вашем ПК возникла проблема, с которой он не смог справиться, и теперь его нужно перезагрузить.\n\nДополнительную информацию можно найти в интернете по коду ошибки: ПРАНК_ВАШЕГО_ДРУГА' },
-  t3: { h: '⚠️', body: 'Обнаружена критическая ошибка: на календаре пятница, 13-е.\n\nРекомендуется немедленно проверить кошелёк, зонт и наличие чёрной кошки поблизости.' },
-  t4: { h: '🐱', body: 'CRITICAL_PROCESS_DIED_BECAUSE_OF_CATS\n\nКот сел на клавиатуру и нажал Ctrl+Alt+Delete. Отменить нельзя.' },
-  t5: { h: '💀', body: 'KERNEL_PANIC_AT_PRODUCTION\n\nОшибка 0xDEADBEEF: null попытался вызвать метод у undefined в продакшене в пятницу вечером.' }
+  t2: { h: ':(', body: 'На вашем ПК возникла проблема, с которой он не смог справиться, и теперь его нужно перезагрузить.\n\nДополнительную информацию можно найти в интернете по коду ошибки: KERNEL_DATA_INPAGE_ERROR' },
+  t3: { h: '🐱', body: 'CRITICAL_PROCESS_DIED_BECAUSE_OF_CATS\n\nКот сел на клавиатуру и нажал Ctrl+Alt+Delete. Отменить нельзя.' },
+  t4: { h: '💀', body: 'KERNEL_PANIC_AT_PRODUCTION\n\nОшибка 0xDEADBEEF: null попытался вызвать метод у undefined в продакшене в пятницу вечером.' }
 };
 
-// --- шифрование: JSON → base64url (доп. "перевёртыш" для нечитаемости) ---
 function encodeParams(obj) {
   const json = JSON.stringify(obj);
   const b64 = btoa(unescape(encodeURIComponent(json)))
     .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  return b64.split('').reverse().join(''); // перевёртыш
+  return b64.split('').reverse().join('');
 }
 
 document.getElementById('generate').addEventListener('click', () => {
@@ -229,18 +203,16 @@ document.getElementById('generate').addEventListener('click', () => {
   }
 
   const params = {
-    c: color,                        // цвет фона
-    f: g('sel_font').value,          // шрифт
-    t: text,                         // заголовок + текст
+    c: color,
+    f: g('sel_font').value,
+    t: text,
     code: g('customCode').value.trim(),
-    snd: g('sel_sound').value,       // звук
-    fs: +g('s_font').value,          // размер шрифта
-    spd: +g('s_speed').value,        // скорость счётчика
+    spd: g('sel_speed').value,
+    fs: +g('s_font').value,
     face: g('c_face').checked,
     prog: g('c_progress').checked,
     blk: g('c_blink').checked,
-    creepy: g('c_creepy').checked,
-    rev: +g('s_reveal').value        // сек до «розыгрыша»
+    creepy: g('c_creepy').checked
   };
 
   const encoded = encodeParams(params);
@@ -257,12 +229,6 @@ document.getElementById('copyBtn').addEventListener('click', function() {
 });
 document.getElementById('openBtn').addEventListener('click', () => {
   window.open(document.getElementById('linkOut').textContent, '_blank');
-});
-document.getElementById('qrBtn').addEventListener('click', function() {
-  const link = document.getElementById('linkOut').textContent;
-  // Показываем ссылку в удобном виде для любого онлайн QR-генератора
-  navigator.clipboard.writeText(link)
-    .then(() => { this.textContent = '✅ В буфере, вставь в qr-code-generator.com'; });
 });
 </script>
 </body>
